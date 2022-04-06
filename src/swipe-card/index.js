@@ -147,7 +147,7 @@ const SwipeCard = React.forwardRef((
     children,
     onSwipe,
     onClick,
-    setIsClick,
+    setAllowClick,
     onCardLeftScreen,
     className,
     preventSwipe = [],
@@ -283,37 +283,31 @@ const SwipeCard = React.forwardRef((
 
     elementRef.current.addEventListener(('mouseup'), (ev) => {
 
-
       if (mouseIsClicked) {
         ev.preventDefault()
         mouseIsClicked = false
         end = new Date()
         const isOneClick = (end - start) <= 127
 
-        setIsClick(isOneClick)
 
         handleSwipeReleased(elementRef.current, speed)
       }
     })
 
     elementRef.current.addEventListener(('mouseleave'), (ev) => {
-
       if (mouseIsClicked) {
         ev.preventDefault()
         mouseIsClicked = false
         handleSwipeReleased(elementRef.current, speed)
       }
     })
-    return () => {
 
-    }
   }, [
     handleSwipeReleased,
     handleSwipeStart,
     onSwipeRequirementFulfilled,
     onSwipeRequirementUnfulfilled,
     swipeRequirementType,
-    setIsClick,
   ]) // TODO fix so swipeRequirementType can be changed on the fly. Pass as dependency cleanup eventlisteners and update new eventlisteners.
 
   return (
