@@ -64,7 +64,6 @@ h2 {
     width: 500px;
     max-width: 500px;
     height: 340px;
-    box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.1);
     background-size: cover;
     background-position: center;
     animation: rotateBack 0.6s;
@@ -120,7 +119,6 @@ h2 {
     margin: 0 10px;
     font-weight: bolder;
     width: 160px;
-    box-shadow: 0px 0px 30px 0px rgba(0, 0, 0, 0.1);
 }
 
 .buttons button:hover {
