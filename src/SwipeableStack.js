@@ -80,7 +80,6 @@ function SwipeableStack() {
   }
 
   const randomDir = Math.random() > 0.5 ? 'right' : 'left';
-
   return (
     <div>
       <link href='https://fonts.googleapis.com/css?family=Damion&display=swap' rel='stylesheet' />
@@ -95,16 +94,18 @@ function SwipeableStack() {
               className='swipe'
               key={character.name}
               onClick={() => swipe(randomDir)}
-              isClick={setIsClick}
+              setIsClick={setIsClick}
               onSwipe={(dir) => swiped(character)}
-              onCardLeftScreen={() => outOfFrame(character.name)}>
+              onCardLeftScreen={() => outOfFrame(character.name)}
+            >
               <div
                 className={`card ${idx !== db.length - 1 && (idx % 2 === 1 ? 'rot-left' : 'rot-right')}`}
                 style={{
+                  cursor: 'pointer',
                   backgroundImage: 'url(' + character.url + ')',
                   // transform: idx !== db.length - 1 && `rotate(${rotation}deg)`,
                 }}>
-                {/* {character.name} */}
+                {character.name}
               </div>
             </SwipeCard>
           )

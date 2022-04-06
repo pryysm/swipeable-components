@@ -10,8 +10,8 @@ const settings = {
   swipeThreshold: 300 // px/s
 }
 
-const getElementSize = (element) => {
-  const elementStyles = window.getComputedStyle(element)
+const getElementSize = (elementRef) => {
+  const elementStyles = window.getComputedStyle(elementRef)
   const widthString = elementStyles.getPropertyValue('width')
   const width = Number(widthString.split('px')[0])
   const heightString = elementStyles.getPropertyValue('height')
@@ -28,8 +28,8 @@ const normalize = (vector, multiplier = 1) => {
   return { x: vector.x * multiplier / length, y: vector.y * multiplier / length }
 }
 
-const animateOut = async (element, speed, easeIn = false) => {
-  const startPos = getTranslate(element)
+const animateOut = async (elementRef, speed, easeIn = false) => {
+  const startPos = getTranslate(elementRef)
   const bodySize = getElementSize(document.body)
   const diagonal = pythagoras(bodySize.x, bodySize.y)
 
@@ -43,35 +43,35 @@ const animateOut = async (element, speed, easeIn = false) => {
 
   // const rotationPower = 200
   if (easeIn) {
-    element.style.transition = 'ease ' + time + 's'
+    elementRef.style.transition = 'ease ' + time + 's'
   } else {
-    element.style.transition = 'ease-out ' + time + 's'
+    elementRef.style.transition = 'ease-out ' + time + 's'
   }
 
-  if (getRotation(element) === 0) {
+  if (getRotation(elementRef) === 0) {
     // rotateString = rotationString((Math.random() - 0.5) * rotationPower)
     rotateString = rotationString(Math.random() > 0.5 ? 15 : -15)
   } else {
-    rotateString = rotationString(getRotation(element) > 0 ? 15 : -15)
+    rotateString = rotationString(getRotation(elementRef) > 0 ? 15 : -15)
   }
 
-  element.style.transform = translateString + rotateString
+  elementRef.style.transform = translateString + rotateString
 
   await sleep(time * 500)
 }
 
-const animateBack = async (element) => {
-  element.style.transition = settings.snapBackDuration + 'ms'
-  // const startingPoint = getTranslate(element)
+const animateBack = async (elementRef) => {
+  elementRef.style.transition = settings.snapBackDuration + 'ms'
+  // const startingPoint = getTranslate(elementRef)
   // const translation = translationString(startingPoint.x * -settings.bouncePower, startingPoint.y * -settings.bouncePower)
-  // const rotation = rotationString(getRotation(element) * -settings.bouncePower)
-  // element.style.transform = translation // + rotation
+  // const rotation = rotationString(getRotation(elementRef) * -settings.bouncePower)
+  // elementRef.style.transform = translation // + rotation
 
   await sleep(settings.snapBackDuration * 0.75)
-  element.style.transform = 'none'
+  elementRef.style.transform = 'none'
 
   await sleep(settings.snapBackDuration)
-  element.style.transition = '200ms'
+  elementRef.style.transition = '200ms'
 }
 
 const getSwipeDirection = (property) => {
@@ -108,28 +108,28 @@ const rotationString = (rot) => {
   return rotation
 }
 
-const getTranslate = (element) => {
-  const style = window.getComputedStyle(element)
+const getTranslate = (elementRef) => {
+  const style = window.getComputedStyle(elementRef)
   const matrix = new WebKitCSSMatrix(style.webkitTransform)
   const ans = { x: matrix.m41, y: -matrix.m42 }
   return ans
 }
 
-const getRotation = (element) => {
-  const style = window.getComputedStyle(element)
+const getRotation = (elementRef) => {
+  const style = window.getComputedStyle(elementRef)
   const matrix = new WebKitCSSMatrix(style.webkitTransform)
   const ans = -Math.asin(matrix.m21) / (2 * Math.PI) * 360
   return ans
 }
 
-const dragableTouchmove = (coordinates, element, offset, lastLocation) => {
+const dragableTouchmove = (coordinates, elementRef, offset, lastLocation) => {
   const pos = { x: coordinates.x + offset.x, y: coordinates.y + offset.y }
   const newLocation = { x: pos.x, y: pos.y, time: new Date().getTime() }
   const translation = translationString(pos.x, pos.y)
   // const rotCalc = calcSpeed(lastLocation, newLocation).x / 1000
   // const rotation = rotationString(rotCalc * settings.maxTilt)
   const rotation = rotationString(newLocation.x > 0 ? 3 : -3)
-  element.style.transform = translation + rotation
+  elementRef.style.transform = translation + rotation
   return newLocation
 }
 
@@ -147,7 +147,7 @@ const SwipeCard = React.forwardRef((
     children,
     onSwipe,
     onClick,
-    isClick,
+    setIsClick,
     onCardLeftScreen,
     className,
     preventSwipe = [],
@@ -159,7 +159,7 @@ const SwipeCard = React.forwardRef((
   settings.swipeThreshold = swipeThreshold
   const swipeAlreadyReleased = React.useRef(false)
 
-  const element = React.useRef()
+  const elementRef = React.useRef()
 
   React.useImperativeHandle(ref, () => ({
     async swipe(dir = 'right') {
@@ -167,28 +167,28 @@ const SwipeCard = React.forwardRef((
       const power = 1000
       const disturbance = (Math.random() - 0.5) * 100
       if (dir === 'right') {
-        await animateOut(element.current, { x: power, y: disturbance }, true)
+        await animateOut(elementRef.current, { x: power, y: disturbance }, true)
       } else if (dir === 'left') {
-        await animateOut(element.current, { x: -power, y: disturbance }, true)
+        await animateOut(elementRef.current, { x: -power, y: disturbance }, true)
       } else if (dir === 'up') {
-        await animateOut(element.current, { x: disturbance, y: power }, true)
+        await animateOut(elementRef.current, { x: disturbance, y: power }, true)
       } else if (dir === 'down') {
-        await animateOut(element.current, { x: disturbance, y: -power }, true)
+        await animateOut(elementRef.current, { x: disturbance, y: -power }, true)
       }
-      element.current.style.display = 'block'
+      elementRef.current.style.display = 'block'
       if (onCardLeftScreen) onCardLeftScreen(dir)
     },
     async restoreCard() {
-      element.current.style.display = 'block'
-      await animateBack(element.current)
+      elementRef.current.style.display = 'block'
+      await animateBack(elementRef.current)
     }
   }))
 
-  const handleSwipeReleased = React.useCallback(async (element, speed) => {
+  const handleSwipeReleased = React.useCallback(async (elementRef, speed) => {
     if (swipeAlreadyReleased.current) { return }
     swipeAlreadyReleased.current = true
 
-    const currentPostion = getTranslate(element)
+    const currentPostion = getTranslate(elementRef)
     // Check if this is a swipe
     const dir = getSwipeDirection(swipeRequirementType === 'velocity' ? speed : currentPostion)
 
@@ -198,11 +198,11 @@ const SwipeCard = React.forwardRef((
       if (flickOnSwipe) {
         if (!preventSwipe.includes(dir)) {
           const outVelocity = swipeRequirementType === 'velocity' ? speed : normalize(currentPostion, 600)
-          await animateOut(element, outVelocity, true)
-          element.style.display = 'block'
+          await animateOut(elementRef, outVelocity, true)
+          elementRef.style.display = 'block'
           if (onCardLeftScreen) {
-            element.style.transform = 'unset'
-            // element.style.transition = 'unset'
+            elementRef.style.transform = 'unset'
+            // elementRef.style.transition = 'unset'
             onCardLeftScreen(dir)
           }
           return
@@ -211,7 +211,7 @@ const SwipeCard = React.forwardRef((
     }
 
     // Card was not flicked away, animate back to start
-    animateBack(element)
+    animateBack(elementRef)
   }, [swipeAlreadyReleased, flickOnSwipe, onSwipe, onCardLeftScreen, preventSwipe, swipeRequirementType])
 
   const handleSwipeStart = React.useCallback(() => {
@@ -227,13 +227,16 @@ const SwipeCard = React.forwardRef((
     let start = new Date()
     let end = new Date()
 
-    element.current.addEventListener(('touchstart'), (ev) => {
-      ev.preventDefault()
+    elementRef.current.addEventListener(('touchstart'), (ev) => {
       handleSwipeStart()
       offset = { x: -touchCoordinatesFromEvent(ev).x, y: -touchCoordinatesFromEvent(ev).y }
     })
 
-    element.current.addEventListener(('mousedown'), (ev) => {
+    elementRef.current.addEventListener(('touchend'), (ev) => {
+      handleSwipeReleased(elementRef.current, speed)
+    })
+
+    elementRef.current.addEventListener(('mousedown'), (ev) => {
       ev.preventDefault()
       mouseIsClicked = true
       start = new Date()
@@ -244,7 +247,7 @@ const SwipeCard = React.forwardRef((
     const handleMove = (coordinates) => {
       // Check fulfillment
       if (onSwipeRequirementFulfilled || onSwipeRequirementUnfulfilled) {
-        const dir = getSwipeDirection(swipeRequirementType === 'velocity' ? speed : getTranslate(element.current))
+        const dir = getSwipeDirection(swipeRequirementType === 'velocity' ? speed : getTranslate(elementRef.current))
         if (dir !== swipeThresholdFulfilledDirection) {
           swipeThresholdFulfilledDirection = dir
           if (swipeThresholdFulfilledDirection === 'none') {
@@ -256,62 +259,72 @@ const SwipeCard = React.forwardRef((
       }
 
       // Move
-      const newLocation = dragableTouchmove(coordinates, element.current, offset, lastLocation)
+      const newLocation = dragableTouchmove(coordinates, elementRef.current, offset, lastLocation)
       speed = calcSpeed(lastLocation, newLocation)
       lastLocation = newLocation
     }
 
-    element.current.addEventListener(('touchmove'), (ev) => {
+    elementRef.current.addEventListener(('touchmove'), (ev) => {
+
       ev.preventDefault()
       handleMove(touchCoordinatesFromEvent(ev))
     })
 
-    element.current.addEventListener(('mousemove'), (ev) => {
+    elementRef.current.addEventListener(('mousemove'), (ev) => {
+
+
       ev.preventDefault()
       if (mouseIsClicked) {
         handleMove(mouseCoordinatesFromEvent(ev))
       }
     })
 
-    element.current.addEventListener(('touchend'), (ev) => {
-      ev.preventDefault()
-      handleSwipeReleased(element.current, speed)
-    })
 
-    element.current.addEventListener(('mouseup'), (ev) => {
+
+    elementRef.current.addEventListener(('mouseup'), (ev) => {
+
+
       if (mouseIsClicked) {
         ev.preventDefault()
         mouseIsClicked = false
         end = new Date()
         const isOneClick = (end - start) <= 127
-        if (isOneClick) {
-          isClick(true)
-          handleSwipeReleased(element.current, speed)
-        } else {
-          isClick(false)
-          handleSwipeReleased(element.current, speed)
-        }
+
+        setIsClick(isOneClick)
+
+        handleSwipeReleased(elementRef.current, speed)
       }
     })
 
-    element.current.addEventListener(('mouseleave'), (ev) => {
+    elementRef.current.addEventListener(('mouseleave'), (ev) => {
+
       if (mouseIsClicked) {
         ev.preventDefault()
         mouseIsClicked = false
-        handleSwipeReleased(element.current, speed)
+        handleSwipeReleased(elementRef.current, speed)
       }
     })
+    return () => {
+
+    }
   }, [
     handleSwipeReleased,
     handleSwipeStart,
     onSwipeRequirementFulfilled,
     onSwipeRequirementUnfulfilled,
     swipeRequirementType,
-    isClick,
+    setIsClick,
   ]) // TODO fix so swipeRequirementType can be changed on the fly. Pass as dependency cleanup eventlisteners and update new eventlisteners.
 
   return (
-    React.createElement('div', { ref: element, className, onClick }, children)
+    <div
+      onClick={onClick}
+      // onClick={() => 
+      ref={elementRef}
+      className={className}
+    >
+      {children}
+    </div>
   )
 })
 
