@@ -105,7 +105,6 @@ function SwipeableStack() {
                   backgroundImage: 'url(' + character.url + ')',
                   // transform: idx !== db.length - 1 && `rotate(${rotation}deg)`,
                 }}>
-                {character.name}
               </div>
             </SwipeCard>
           )
