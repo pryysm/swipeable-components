@@ -40,7 +40,7 @@ const db = [
   }
 ]
 
-function SwipeableStack () {
+function SwipeableStack() {
   const characters = db
   const dbLength = db?.length - 1
   const [runAnimi, setRunAnimi] = useState(false)
@@ -89,7 +89,7 @@ function SwipeableStack () {
       <div className='cardContainer'>
         {characters.map((character, idx) => {
           //  const rotation = (idx % 2 === 1 ? 0.3 : 0.7) * (5 - -5) + -5;
-           return (
+          return (
             <SwipeCard
               ref={childRefs[idx]}
               className='swipe'
@@ -104,10 +104,10 @@ function SwipeableStack () {
                   backgroundImage: 'url(' + character.url + ')',
                   // transform: idx !== db.length - 1 && `rotate(${rotation}deg)`,
                 }}>
-                  {/* {character.name} */}
+                {/* {character.name} */}
               </div>
             </SwipeCard>
-           )
+          )
         }
         )}
       </div>
